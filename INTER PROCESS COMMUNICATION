@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wait.h>
+
+#define SHM_SIZE 1024
+
+struct sembuf P = {0, -1, 0}; // wait
+struct sembuf V = {0, 1, 0};  // signal
+
+int main() {
+    key_t key_shm = ftok("shmfile", 65);
+    key_t key_sem = ftok("semfile", 75);
+
+    
+    int shmid = shmget(key_shm, SHM_SIZE, 0666 | IPC_CREAT);
+    if (shmid < 0) {
+        perror("shmget");
+        exit(1);
+    }
+    char *str = (char*) shmat(shmid, NULL, 0);
+    if (str == (char*) -1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    int semid = semget(key_sem, 1, 0666 | IPC_CREAT);
+    if (semid < 0) {
+        perror("semget");
+        exit(1);
+    }
+    semctl(semid, 0, SETVAL, 0);
+
+    if (fork() == 0) {
+        // Child (Reader)
+        semop(semid, &P, 1);  // wait until parent signals
+        printf("Child Process (Reader) read: %s\n", str);
+        shmdt(str);
+        exit(0);
+    } else {
+        // Parent (Writer)
+        printf("Parent Process (Writer): Enter a message: ");
+        fgets(str, SHM_SIZE, stdin);
+        str[strcspn(str, "\n")] = '\0'; // remove newline
+        printf("Parent Process (Writer) wrote: %s\n", str);
+
+        semop(semid, &V, 1);  // signal child to read
+
+        wait(NULL); // wait for child
+        shmdt(str);
+        shmctl(shmid, IPC_RMID, NULL);
+        semctl(semid, 0, IPC_RMID); // remove semaphore
+    }
+
+    return 0;
+}
