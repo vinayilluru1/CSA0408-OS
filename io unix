@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <string.h>
+
+int main() {
+    int fd;
+    char buf[100];
+    struct stat st;
+
+    // 1. Open a file using open() and fcntl()
+    fd = open("testfile.txt", O_CREAT | O_RDWR, 0644);
+    if(fd < 0) {
+        perror("open failed");
+        exit(1);
+    }
+
+    // Using fcntl to get file status flags
+    int flags = fcntl(fd, F_GETFL);
+    if(flags < 0) {
+        perror("fcntl failed");
+        exit(1);
+    }
+    printf("File opened with flags: %d\n", flags);
+
+    // 2. Write to file
+    char *text = "Hello UNIX I/O system calls!\n";
+    write(fd, text, strlen(text));
+
+    // 3. Move file pointer using lseek
+    lseek(fd, 0, SEEK_SET);
+
+    // 4. Read from file
+    int n = read(fd, buf, sizeof(buf)-1);
+    buf[n] = '\0';
+    printf("Data read from file: %s", buf);
+
+    // 5. Get file info using stat
+    if(stat("testfile.txt", &st) == 0) {
+        printf("\nFile size: %ld bytes\n", st.st_size);
+        printf("File inode: %ld\n", st.st_ino);
+        printf("File permissions: %o\n", st.st_mode & 0777);
+    }
+
+    close(fd);
+
+    // 6. Read current directory using opendir/readdir
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(".");
+    if(d) {
+        printf("\nFiles in current directory:\n");
+        while((dir = readdir(d)) != NULL) {
+            printf("%s\n", dir->d_name);
+        }
+        closedir(d);
+    }
+
+    return 0;
+}
