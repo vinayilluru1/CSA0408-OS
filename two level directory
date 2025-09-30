@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <string.h>
+
+struct {
+    char dname[20];
+    char fname[20][20];
+    int fcount;
+} user[10];
+
+int main() {
+    int ucount = 0, ch, i, j;
+    char d[20], f[20];
+
+    while (1) {
+        printf("\n1.Create User Dir  2.Create File  3.Display  4.Exit\n");
+        scanf("%d", &ch);
+
+        switch (ch) {
+        case 1:
+            printf("User dir name: ");
+            scanf("%s", user[ucount].dname);
+            user[ucount].fcount = 0;
+            ucount++;
+            break;
+
+        case 2:
+            printf("User dir name: ");
+            scanf("%s", d);
+            for (i = 0; i < ucount; i++) {
+                if (strcmp(d, user[i].dname) == 0) {
+                    printf("File name: ");
+                    scanf("%s", user[i].fname[user[i].fcount]);
+                    user[i].fcount++;
+                }
+            }
+            break;
+
+        case 3:
+            for (i = 0; i < ucount; i++) {
+                printf("\nDir %s:\n", user[i].dname);
+                for (j = 0; j < user[i].fcount; j++)
+                    printf("  %s\n", user[i].fname[j]);
+            }
+            break;
+
+        case 4:
+            return 0;
+        }
+    }
+}
