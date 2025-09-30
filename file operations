@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    FILE *fp;
+    char filename[50], text[100];
+    int choice;
+
+    while(1) {
+        printf("\n--- File Management Operations ---\n");
+        printf("1. Create File\n2. Write to File\n3. Read File\n4. Append to File\n5. Delete File\n6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // consume newline
+
+        switch(choice) {
+            case 1:
+                printf("Enter file name to create: ");
+                fgets(filename, sizeof(filename), stdin);
+                filename[strcspn(filename, "\n")] = 0;
+                fp = fopen(filename, "w");
+                if(fp == NULL) {
+                    printf("File creation failed!\n");
+                } else {
+                    printf("File created successfully.\n");
+                    fclose(fp);
+                }
+                break;
+
+            case 2:
+                printf("Enter file name to write: ");
+                fgets(filename, sizeof(filename), stdin);
+                filename[strcspn(filename, "\n")] = 0;
+                fp = fopen(filename, "w");
+                if(fp == NULL) {
+                    printf("File open failed!\n");
+                    break;
+                }
+                printf("Enter text to write: ");
+                fgets(text, sizeof(text), stdin);
+                fprintf(fp, "%s", text);
+                fclose(fp);
+                printf("Data written successfully.\n");
+                break;
+
+            case 3:
+                printf("Enter file name to read: ");
+                fgets(filename, sizeof(filename), stdin);
+                filename[strcspn(filename, "\n")] = 0;
+                fp = fopen(filename, "r");
+                if(fp == NULL) {
+                    printf("File open failed!\n");
+                    break;
+                }
+                printf("File contents:\n");
+                while(fgets(text, sizeof(text), fp) != NULL)
+                    printf("%s", text);
+                fclose(fp);
+                break;
+
+            case 4:
+                printf("Enter file name to append: ");
+                fgets(filename, sizeof(filename), stdin);
+                filename[strcspn(filename, "\n")] = 0;
+                fp = fopen(filename, "a");
+                if(fp == NULL) {
+                    printf("File open failed!\n");
+                    break;
+                }
+                printf("Enter text to append: ");
+                fgets(text, sizeof(text), stdin);
+                fprintf(fp, "%s", text);
+                fclose(fp);
+                printf("Data appended successfully.\n");
+                break;
+
+            case 5:
+                printf("Enter file name to delete: ");
+                fgets(filename, sizeof(filename), stdin);
+                filename[strcspn(filename, "\n")] = 0;
+                if(remove(filename) == 0)
+                    printf("File deleted successfully.\n");
+                else
+                    printf("Failed to delete file.\n");
+                break;
+
+            case 6:
+                exit(0);
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
