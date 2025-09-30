@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+    int fd;
+    char write_buf[100], read_buf[100];
+    int n;
+
+    // Create or open a file
+    fd = open("unix_file.txt", O_CREAT | O_RDWR, 0644);
+    if(fd < 0) {
+        perror("Failed to open file");
+        exit(1);
+    }
+
+    // Write to the file
+    printf("Enter text to write into file: ");
+    fgets(write_buf, sizeof(write_buf), stdin);
+    write(fd, write_buf, strlen(write_buf));
+
+    // Move file pointer to beginning
+    lseek(fd, 0, SEEK_SET);
+
+    // Read from the file
+    n = read(fd, read_buf, sizeof(read_buf)-1);
+    read_buf[n] = '\0'; // null terminate
+    printf("Data read from file: %s\n", read_buf);
+
+    // Close the file
+    close(fd);
+
+    return 0;
+}
