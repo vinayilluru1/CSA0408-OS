@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Employee {
+    int id;
+    char name[20];
+    float salary;
+};
+
+int main() {
+    FILE *fp;
+    struct Employee emp;
+    int ch, id, found;
+
+    fp = fopen("employee.dat", "rb+");
+    if (fp == NULL) {
+        fp = fopen("employee.dat", "wb+");
+        if (fp == NULL) {
+            printf("Cannot open file.\n");
+            exit(1);
+        }
+    }
+
+    while (1) {
+        printf("\n1. Add Employee\n2. Display All\n3. Search by ID\n4. Exit\n");
+        scanf("%d", &ch);
+
+        switch (ch) {
+        case 1:
+            printf("Enter ID Name Salary: ");
+            scanf("%d %s %f", &emp.id, emp.name, &emp.salary);
+            fseek(fp, (emp.id - 1) * sizeof(emp), SEEK_SET);
+            fwrite(&emp, sizeof(emp), 1, fp);
+            break;
+
+        case 2:
+            rewind(fp);
+            while (fread(&emp, sizeof(emp), 1, fp))
+                printf("%d %s %.2f\n", emp.id, emp.name, emp.salary);
+            break;
+
+        case 3:
+            printf("Enter ID to search: ");
+            scanf("%d", &id);
+            fseek(fp, (id - 1) * sizeof(emp), SEEK_SET);
+            if (fread(&emp, sizeof(emp), 1, fp)) {
+                if (emp.id == id)
+                    printf("Found: %d %s %.2f\n", emp.id, emp.name, emp.salary);
+                else
+                    printf("No record.\n");
+            } else
+                printf("No record.\n");
+            break;
+
+        case 4:
+            fclose(fp);
+            exit(0);
+        }
+    }
+}
