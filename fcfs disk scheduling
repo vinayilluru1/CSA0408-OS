@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, i, head, seek = 0, diff;
+    float avg_seek;
+
+    printf("Enter number of disk requests: ");
+    scanf("%d", &n);
+
+    int requests[n];
+
+    printf("Enter the disk request sequence:\n");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("\nDisk Head Movement:\n");
+    for (i = 0; i < n; i++) {
+        diff = abs(requests[i] - head);
+        seek += diff;
+        printf("Head moves from %d to %d with seek %d\n", head, requests[i], diff);
+        head = requests[i];
+    }
+
+    avg_seek = (float)seek / n;
+
+    printf("\nTotal Seek Time = %d\n", seek);
+    printf("Average Seek Time = %.2f\n", avg_seek);
+
+    return 0;
+}
