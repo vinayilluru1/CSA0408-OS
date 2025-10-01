@@ -1,0 +1,55 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+// Thread function for creation and join
+void* threadFunc1(void* arg) {
+    printf("Thread 1: Hello! I was created successfully.\n");
+    return NULL;
+}
+
+// Thread function for equal
+void* threadFunc2(void* arg) {
+    pthread_t tid = pthread_self();
+    pthread_t *target = (pthread_t*)arg;
+
+    if (pthread_equal(tid, *target))
+        printf("Thread 2: My ID is equal to the passed thread ID.\n");
+    else
+        printf("Thread 2: My ID is NOT equal to the passed thread ID.\n");
+
+    return NULL;
+}
+
+// Thread function for exit
+void* threadFunc3(void* arg) {
+    printf("Thread 3: I am going to exit now.\n");
+    pthread_exit(NULL); // Thread exits here
+    printf("Thread 3: You will never see this line.\n");
+    return NULL;
+}
+
+int main() {
+    pthread_t tid1, tid2, tid3;
+
+    // ---- Demonstrate Create & Join ----
+    printf("\n=== Demonstrating pthread_create & pthread_join ===\n");
+    pthread_create(&tid1, NULL, threadFunc1, NULL);
+    pthread_join(tid1, NULL);
+    printf("Main: Thread 1 joined successfully.\n");
+
+    // ---- Demonstrate Equal ----
+    printf("\n=== Demonstrating pthread_equal ===\n");
+    pthread_create(&tid2, NULL, threadFunc2, &tid1);
+    pthread_join(tid2, NULL);
+    printf("Main: Thread 2 finished.\n");
+
+    // ---- Demonstrate Exit ----
+    printf("\n=== Demonstrating pthread_exit ===\n");
+    pthread_create(&tid3, NULL, threadFunc3, NULL);
+    pthread_join(tid3, NULL);
+    printf("Main: Thread 3 exited successfully.\n");
+
+    printf("\nAll pthread operations demonstrated.\n");
+    return 0;
+}
