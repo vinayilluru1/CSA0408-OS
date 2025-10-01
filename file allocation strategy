@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_RECORDS 100
+#define MAX_LEN 50
+
+typedef struct {
+    int id;
+    char data[MAX_LEN];
+} Record;
+
+typedef struct {
+    Record records[MAX_RECORDS];
+    int count;
+} File;
+
+// Function to create a new record
+void addRecord(File *file, int id, char data[]) {
+    if (file->count == MAX_RECORDS) {
+        printf("File is full! Cannot add more records.\n");
+        return;
+    }
+    file->records[file->count].id = id;
+    strcpy(file->records[file->count].data, data);
+    file->count++;
+    printf("Record %d added successfully.\n", id);
+}
+
+// Function to display all records sequentially
+void displayFile(File *file) {
+    if (file->count == 0) {
+        printf("File is empty.\n");
+        return;
+    }
+    printf("\n--- File Contents (Sequential Access) ---\n");
+    for (int i = 0; i < file->count; i++) {
+        printf("Record %d: %s\n", file->records[i].id, file->records[i].data);
+    }
+}
+
+// Function to read a record sequentially
+void readRecord(File *file, int pos) {
+    if (pos > file->count || pos <= 0) {
+        printf("Invalid record position!\n");
+        return;
+    }
+    printf("\nAccessing Record %d sequentially:\n", pos);
+    for (int i = 0; i < pos; i++) {
+        printf("Record %d: %s\n", file->records[i].id, file->records[i].data);
+    }
+}
+
+int main() {
+    File file;
+    file.count = 0;
+
+    int choice, id, pos;
+    char data[MAX_LEN];
+
+    while (1) {
+        printf("\n=== Sequential File Allocation Simulation ===\n");
+        printf("1. Add Record\n");
+        printf("2. Display File\n");
+        printf("3. Read Record (Sequential Access)\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter record id: ");
+                scanf("%d", &id);
+                printf("Enter record data: ");
+                scanf("%s", data);
+                addRecord(&file, id, data);
+                break;
+
+            case 2:
+                displayFile(&file);
+                break;
+
+            case 3:
+                printf("Enter record position to access: ");
+                scanf("%d", &pos);
+                readRecord(&file, pos);
+                break;
+
+            case 4:
+                exit(0);
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    }
+    return 0;
+}
